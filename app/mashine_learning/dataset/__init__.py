@@ -1,1 +1,5 @@
-from .init_dataset import download_dataset
+from .chest_xray_dataset import ChestXrayDataset
+
+__all__ = [
+    "ChestXrayDataset",
+]

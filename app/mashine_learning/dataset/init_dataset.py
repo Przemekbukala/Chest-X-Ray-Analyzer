@@ -1,6 +1,6 @@
 import os
-import kagglehub
 import logging
+import kagglehub
 
 def download_dataset() -> str:
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
