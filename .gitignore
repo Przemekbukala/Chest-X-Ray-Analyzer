@@ -1,2 +1,11 @@
 **/data/
 __pycache__/
+.idea/
+__pycache__/
+*.pyc
+venv/
+env/
+
+# Text backup files
+*.bak
+notes.txt
