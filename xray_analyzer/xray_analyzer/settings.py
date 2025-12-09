@@ -130,6 +130,10 @@ AUTH_USER_MODEL = 'xray_analyzer_app.CustomUser'
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

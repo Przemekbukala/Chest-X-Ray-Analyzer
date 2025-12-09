@@ -1,5 +1,10 @@
 from django.urls import path,include
-from .views import login_view
+from . import views
+
 
 urlpatterns = [
+    path('', views.home, name='home'),
+    path('about/',views.about, name='about'),
+    path('register/', views.register_view, name='register'), # will be/xray_analyzer_app/register/ instead of /account/register
+
 ]
