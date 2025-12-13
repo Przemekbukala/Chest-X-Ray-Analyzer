@@ -7,7 +7,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device, e
     model.to(device)
 
     for epoch in range(epochs):
-        logging.info(f"\nEPOCH {epoch+1}/{epochs}")
+        logging.info(f"EPOCH {epoch+1}/{epochs}")
 
         model.train()
         total_loss = 0

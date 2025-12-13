@@ -8,10 +8,12 @@ from models.simple_cnn import SimpleCNN
 from training.trainer import train_model
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+
     ROOT = os.path.abspath("../data/chest_xray")
 
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    logging.info("Using device:", device)
+    logging.info(f"Using device: {device}")
 
     transform = transforms.Compose([
         transforms.Resize((256, 256)),

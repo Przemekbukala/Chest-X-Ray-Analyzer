@@ -34,4 +34,5 @@ def train_model(model, train_loader, val_loader, epochs=5, device="cpu"):
         logging.info(f"Epoch {epoch+1}/{epochs} - train loss: {loss.item():.4f}")
 
     torch.save(model.state_dict(), "model.pth")
+    logging.info("Model saved to model.pth")
     return model
