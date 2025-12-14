@@ -3,14 +3,14 @@ import torch
 import logging
 from models.simple_cnn import SimpleCNN
 from training.trainer import train_model
-from helpers.model_utils import parse_model_path, get_device
+from helpers.model_utils import parse_model_path_or_epochs, get_device
 from helpers.data_utils import get_dataloaders
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] : %(message)s')
 
     try:
-        model_path = parse_model_path(sys.argv)
+        model_path, epochs = parse_model_path_or_epochs(sys.argv)
         device = get_device()
         train_loader, val_loader, _ = get_dataloaders(batch_size=16)
         model = SimpleCNN(num_classes=3)
@@ -23,7 +23,11 @@ if __name__ == "__main__":
             logging.info("Training new model...")
             criterion = torch.nn.CrossEntropyLoss()
             optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-            train_model(model, train_loader, val_loader, criterion, optimizer, device)
+            
+            if epochs is None:
+                epochs = 3
+            
+            train_model(model, train_loader, val_loader, criterion, optimizer, device, epochs=epochs)
             
     except Exception as e:
         logging.error(f"Training failed: {e}")

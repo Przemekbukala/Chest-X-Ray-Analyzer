@@ -86,6 +86,4 @@ def train_model(
 
     save_model(model, run_dir)
     save_training_plots(train_losses, val_accuracies, run_dir)
-    metrics_path = save_training_metrics(train_losses, val_accuracies, epochs, timestamp, run_dir)
-    
-    logging.info(f"Metrics saved to: {metrics_path}")
+    save_training_metrics(train_losses, val_accuracies, epochs, timestamp, run_dir)
