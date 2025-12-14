@@ -1,12 +1,16 @@
 import os
 from PIL import Image
-from typing import Tuple
+from typing import Tuple, Optional, Callable
 import torch
 from torch.utils.data import Dataset
-from torchvision import transforms
 
 class ChestXrayDataset(Dataset):
-    def __init__(self, root_dir, split="train", transform=None):
+    def __init__(
+            self,
+            root_dir: str,
+            split: str = "train",
+            transform: Optional[Callable] = None
+            ) -> None:
         self.transform = transform
         self.class_names = {"normal": 0, "pneumonia": 1, "tuberculosis": 2}
         self.image_paths = []
