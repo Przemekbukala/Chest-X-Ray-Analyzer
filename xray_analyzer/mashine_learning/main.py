@@ -1,4 +1,5 @@
 import os
+import sys
 import torch
 from torchvision import transforms
 from torch.utils.data import DataLoader
@@ -11,7 +12,23 @@ from training.trainer import train_model
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
-    
+    model_path = None
+    if len(sys.argv) > 1:
+        model_path = sys.argv[1]
+        
+        if model_path.startswith("run_"):
+            model_path = os.path.join("runs", model_path, "model.pth")
+        elif os.path.isdir(model_path):
+            model_path = os.path.join(model_path, "model.pth")
+        
+        if not os.path.exists(model_path):
+            logging.error(f"Model file not found: {model_path}")
+            sys.exit(1)
+        
+        logging.info(f"Using existing model: {model_path}")
+    else:
+        logging.info("No model path provided - training new model")
+
     dataset_path = download_dataset()
 
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
@@ -30,7 +47,11 @@ if __name__ == "__main__":
 
     model = SimpleCNN(num_classes=3)
 
-    criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    if model_path:
+        model.load_state_dict(torch.load(model_path, map_location=device))
+        logging.info("Model loaded successfully")
+    else:
 
-    train_model(model, train_loader, val_loader, criterion, optimizer, device)
+        criterion = torch.nn.CrossEntropyLoss()
+        optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+        train_model(model, train_loader, val_loader, criterion, optimizer, device)
