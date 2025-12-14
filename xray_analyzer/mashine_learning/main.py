@@ -4,13 +4,15 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 import logging
 from dataset.chest_xray_dataset import ChestXrayDataset
+from dataset.init_dataset import download_dataset
 from models.simple_cnn import SimpleCNN
 from training.trainer import train_model
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
-    ROOT = os.path.abspath("../data/chest_xray")
+    
+    dataset_path = download_dataset()
 
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     logging.info(f"Using device: {device}")
@@ -20,8 +22,8 @@ if __name__ == "__main__":
         transforms.ToTensor()
     ])
 
-    train_ds = ChestXrayDataset(ROOT, "train", transform)
-    val_ds   = ChestXrayDataset(ROOT, "val",   transform)
+    train_ds = ChestXrayDataset(dataset_path, "train", transform)
+    val_ds   = ChestXrayDataset(dataset_path, "val",   transform)
 
     train_loader = DataLoader(train_ds, batch_size=16, shuffle=True)
     val_loader   = DataLoader(val_ds,   batch_size=16)
