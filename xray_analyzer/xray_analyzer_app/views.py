@@ -36,3 +36,36 @@ def register_view(request):
 
     return render(request, "registration/register.html", {"form": form})
 
+import os
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.conf import settings
+
+def upload_xray(request):
+    if request.method == 'POST':
+        if 'xray_file' not in request.FILES:
+            messages.error(request, 'No file was chosen')
+            return redirect('upload_xray')
+
+        file = request.FILES['xray_file']
+
+        if not file.name.lower().endswith(('.jpg')):
+            messages.error(request, 'Invalid file format, JPG required')
+            return redirect('upload_xray')
+
+        if file.size > 10 * 1024 * 1024:
+            messages.error(request, 'File is too big, exceeds 10 MB')
+            return redirect('upload_xray')
+
+        temp_folder = os.path.join(settings.BASE_DIR, 'temp_uploads')
+        os.makedirs(temp_folder, exist_ok=True)
+        file_path = os.path.join(temp_folder, file.name)
+
+        with open(file_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+
+        messages.success(request, f'File "{file.name}" successfully saved')
+        return redirect('upload_xray')
+
+    return render(request, 'upload_xray.html')

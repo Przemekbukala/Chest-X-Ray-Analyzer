@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Upload X-ray - Xray Analyzer App{% endblock %}
+
+{% block content %}
+    <div class="upload-container" style="max-width: 600px; margin: 60px auto; padding: 40px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); text-align: center;">
+        <h1 style="margin-bottom: 30px; color: #333; font-size: 28px;">Upload Chest X-ray</h1>
+
+        {% if messages %}
+            <div style="margin-bottom: 30px;">
+                {% for message in messages %}
+                    <div style="
+                        padding: 15px 20px;
+                        margin-bottom: 15px;
+                        border-radius: 8px;
+                        font-weight: bold;
+                        font-size: 16px;
+                        {% if message.tags == 'error' %}
+                            background-color: #ffe6e6;
+                            color: #d80000;
+                            border: 1px solid #ff9999;
+                        {% else %}
+                            background-color: #e6ffe6;
+                            color: #006400;
+                            border: 1px solid #99ff99;
+                        {% endif %}
+                    ">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 35px; text-align: left;">
+                <label style="display: block; font-size: 18px; margin-bottom: 12px; color: #444;">
+                    Choose a file:
+                </label>
+
+                <label class="custom-file-upload" style="
+                    position: relative;
+                    display: block;
+                    width: 100%;
+                    padding: 14px;
+                    font-size: 16px;
+                    border: 2px dashed #999;
+                    border-radius: 8px;
+                    background-color: #fff;
+                    text-align: center;
+                    color: #555;
+                    cursor: pointer;
+                    min-height: 50px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                ">
+                    <input 
+                        type="file" 
+                        name="xray_file" 
+                        id="xray_file" 
+                        accept=".jpg,.jpeg" 
+                        style="
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            width: 100%;
+                            height: 100%;
+                            opacity: 0;
+                            cursor: pointer;
+                            z-index: 1;
+                        "
+                        title=" "  
+                    >
+                    <span id="file-name">No file chosen</span>
+                </label>
+
+                <small style="display: block; margin-top: 10px; color: #666; font-size: 14px;">
+                    <strong>Only JPG or JPEG files</strong><br>
+                    Max file size: 10 MB
+                </small>
+            </div>
+
+            <div>
+                <button 
+                    type="submit" 
+                    style="
+                        padding: 14px 40px;
+                        font-size: 18px;
+                        background-color: #007bff;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        transition: background-color 0.3s ease;
+                    "
+                    onmouseover="this.style.backgroundColor='#0056b3'"
+                    onmouseout="this.style.backgroundColor='#007bff'"
+                >
+                    Upload and wait for analysis
+                </button>
+            </div>
+        </form>
+
+        <!-- JavaScript – pokazuje nazwę pliku po wyborze -->
+        <script>
+            document.getElementById('xray_file').addEventListener('change', function(e) {
+                const fileName = e.target.files.length > 0 
+                    ? e.target.files[0].name 
+                    : 'No file chosen';
+                document.getElementById('file-name').textContent = fileName;
+            });
+        </script>
+    </div>
+{% endblock %}
