@@ -2,8 +2,8 @@ import logging
 from typing import Tuple
 from torchvision import transforms
 from torch.utils.data import DataLoader
-from dataset.chest_xray_dataset import ChestXrayDataset
-from dataset.init_dataset import download_dataset
+from ..dataset.chest_xray_dataset import ChestXrayDataset
+from ..dataset.init_dataset import download_dataset
 
 
 def get_dataloaders(

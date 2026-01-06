@@ -7,6 +7,7 @@ __pycache__/
 venv/
 env/
 **/temp_uploads/
+**/media/
 # Text backup files
 *.bak
 notes.txt

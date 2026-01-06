@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from .forms import CustomUserCreationForm
+from .models import XrayAnalysis
+
 
 def home(request):
     return render(request, 'home.html')
@@ -40,7 +42,9 @@ import os
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def upload_xray(request):
     if request.method == 'POST':
         if 'xray_file' not in request.FILES:
@@ -57,13 +61,17 @@ def upload_xray(request):
             messages.error(request, 'File is too big, exceeds 10 MB')
             return redirect('upload_xray')
 
-        temp_folder = os.path.join(settings.BASE_DIR, 'temp_uploads')
-        os.makedirs(temp_folder, exist_ok=True)
-        file_path = os.path.join(temp_folder, file.name)
+        analysis = XrayAnalysis.objects.create(
+            user=request.user,
+            image=file,
+            predicted_class="pending",
+            confidence=0.0,
+            probabilities={},
+        )
 
-        with open(file_path, 'wb+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
+
+
+
 
         messages.success(request, f'File "{file.name}" successfully saved')
         return redirect('upload_xray')

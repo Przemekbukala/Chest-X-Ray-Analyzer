@@ -7,7 +7,7 @@ from torch.optim import Optimizer
 from tqdm import tqdm
 import logging
 from datetime import datetime
-from helpers.training_utils import save_model, save_training_plots, save_training_metrics
+from ..helpers.training_utils import save_model, save_training_plots, save_training_metrics
 
 
 def train_epoch(

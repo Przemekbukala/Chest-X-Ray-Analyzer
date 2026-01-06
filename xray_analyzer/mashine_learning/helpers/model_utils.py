@@ -4,7 +4,7 @@ import logging
 import torch
 from typing import List, Optional, Tuple
 from torch.nn import Module
-from models.simple_cnn import SimpleCNN
+from ..models.simple_cnn import SimpleCNN
 
 
 def get_device() -> torch.device:
