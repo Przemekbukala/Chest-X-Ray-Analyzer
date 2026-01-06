@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>History</h2>
+
+{% if analyses %}
+    <table style="width:100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Picture</th>
+                <th>Result</th>
+                <th>Confidence</th>
+                <th>HeatMap</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for analysis in analyses %}
+            <tr>
+                <td>{{ analysis.created_at|date:"Y-m-d H:i" }}</td>
+
+                <td>
+                    <a href="{{ analysis.image.url }}" target="_blank">
+                        <img src="{{ analysis.image.url }}" width="100">
+                    </a>
+                </td>
+
+                <td>
+                    {{ analysis.predicted_class|capfirst }}
+                </td>
+
+                <td>
+                    {{ analysis.confidence|floatformat:2 }}
+                </td>
+
+                <td>
+                    {% if analysis.heatmap %}
+                        <a href="{{ analysis.heatmap.url }}" target="_blank">
+                            Heatmap
+                        </a>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    <button>Details</button>
+                </td>
+                <td>
+                    <button>Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No history</p>
+{% endif %}
+
+{% endblock %}

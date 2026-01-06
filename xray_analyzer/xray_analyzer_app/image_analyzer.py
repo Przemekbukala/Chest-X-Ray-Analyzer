@@ -36,11 +36,17 @@ class ImageAnalizer():
             logger.error(f"Cannot open image {image_path}: {e}")
             return None
         img_tensor = transform(img).unsqueeze(0).to(self.device)
-        with torch.no_grad():
+        with (torch.no_grad()):
             self.output = self.model(img_tensor)
             probabilities = torch.softmax(self.output, dim=1)
             class_names = ["normal", "pneumonia", "tuberculosis"]
-            result = {name: round(float(prob) *100,2)  for name, prob in zip(class_names, probabilities[0])}
+            confidence, predicted_idx = torch.max(probabilities, dim=1)
+            result = {
+                "predicted_class": class_names[predicted_idx.item()],
+                "confidence": confidence.item(),
+                "probabilities": {name: round(float(prob) *100,2)  for name, prob in zip(class_names, probabilities[0])}
+            }
+
             logger.info(f"Analysis result: {result}")
             return result
 

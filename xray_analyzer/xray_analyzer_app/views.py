@@ -1,4 +1,3 @@
-from django.db.models.expressions import result
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -7,6 +6,8 @@ from .forms import CustomUserCreationForm
 from .models import XrayAnalysis
 from .image_analyzer import ImageAnalizer
 from . import model_loader
+import logging
+logger = logging.getLogger(__name__)
 
 def home(request):
     return render(request, 'home.html')
@@ -62,23 +63,51 @@ def upload_xray(request):
         if file.size > 10 * 1024 * 1024:
             messages.error(request, 'File is too big, exceeds 10 MB')
             return redirect('upload_xray')
-        result : dict[str, float]
-        try:
-            analyzer = ImageAnalizer()
-            result = analyzer.analyze(file)
-        except Exception as e:
-            print(f"Error: {e}")
 
         analysis = XrayAnalysis.objects.create(
             user=request.user,
             image=file,
             predicted_class="pending",
             confidence=0.0,
-            probabilities=result,
+            probabilities={},
         )
-
         messages.success(request, f'File "{file.name}" successfully saved')
-        messages.info(request, f'Analysis result:\n Normal {result['normal']}%\n Pneumonia {result['pneumonia']}%\n Tuberculosis {result['tuberculosis']}%')
+
+        try:
+            analyzer = ImageAnalizer()
+            result = analyzer.analyze(analysis.image.path)
+
+            analysis.predicted_class = result["predicted_class"]
+            analysis.confidence = result["confidence"]
+            analysis.probabilities = result["probabilities"]
+            analysis.save()
+
+            messages.info(request, f'Analysis result:\n Normal {result["probabilities"]["normal"]}%\n Pneumonia {result["probabilities"]['pneumonia']}%\n Tuberculosis {result["probabilities"]['tuberculosis']}%')
+
+        except Exception as e:
+            analysis.predicted_class = "error"
+            analysis.save()
+
+            logger.exception("X-ray analysis failed")
+            messages.error(request, "Analysis failed. Please try again.")
+
+
         return redirect('upload_xray')
 
     return render(request, 'upload_xray.html')
+
+@login_required
+def xray_history(request):
+    analyses = (
+        XrayAnalysis.objects
+        .filter(user=request.user)
+        .order_by("-created_at")
+    )
+
+    return render(
+        request,
+        "xray_history.html",
+        {
+            "analyses": analyses
+        }
+    )

@@ -18,6 +18,9 @@
             <a href="{% url 'home' %}">Home</a>
             <a href="{% url 'about' %}">About</a>
             <a href="{% url 'upload_xray' %}">Upload_X-ray</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'xray_history' %}">History</a>
+            {% endif %}
         </div>
 
 

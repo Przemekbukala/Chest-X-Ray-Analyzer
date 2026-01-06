@@ -1,18 +1,10 @@
-import sys
 import torch
 import logging
-import os
-
 from mashine_learning.models.simple_cnn import SimpleCNN
-from mashine_learning.helpers.model_utils import parse_model_path_or_epochs, get_device
-
-
-
+from mashine_learning.helpers.model_utils import get_device
 
 logger = logging.getLogger(__name__)
-
 MODEL = None
-
 
 def load_model():
     global MODEL

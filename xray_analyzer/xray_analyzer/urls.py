@@ -20,9 +20,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 
-urlpatterns = [
+urlpatterns = ([
     path('admin/', admin.site.urls),
     path('xray_analyzer_app/', include('xray_analyzer_app.urls')),
     path('', RedirectView.as_view(url='xray_analyzer_app/')),
     path('accounts/', include('django.contrib.auth.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+               + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT))
