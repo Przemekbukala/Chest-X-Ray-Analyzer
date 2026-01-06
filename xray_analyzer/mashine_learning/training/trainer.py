@@ -7,8 +7,8 @@ from torch.optim import Optimizer
 from tqdm import tqdm
 import logging
 from datetime import datetime
-from ..helpers.training_utils import save_model, save_training_plots, save_training_metrics
-
+from mashine_learning.helpers.training_utils import save_model, save_training_plots, save_training_metrics
+from mashine_learning.config import MODELS_DIR
 
 def train_epoch(
         model: Module,
