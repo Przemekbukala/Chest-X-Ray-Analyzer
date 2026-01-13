@@ -1,14 +1,20 @@
-**/data/
-**/runs/
-__pycache__/
-.idea/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
 venv/
 env/
-**/temp_uploads/
+.vscode/
+.idea/
+
+**/data/
+**/runs/
+*.pth
+
 **/media/
-# Text backup files
+**/temp_uploads/
+
 *.bak
 notes.txt
-**
+db.sqlite3

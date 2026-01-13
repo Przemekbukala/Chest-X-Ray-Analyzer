@@ -7,4 +7,4 @@ class XrayAnalyzerAppConfig(AppConfig):
 
     def ready(self):
         from .model_loader import load_model
-        load_model()
+        #load_model()

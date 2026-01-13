@@ -1,59 +1,70 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>History</h2>
+<div class="container mt-4">
+    <h2>History</h2>
+    {% if show_details %}
+    <div class="alert alert-secondary mt-3">
+        <h5 class="mb-2">Details for #{{ analysis.id }}</h5>
+        <p class="mb-1"><strong>Probability of survival:</strong> {{ survival_prob|floatformat:2 }}%</p>
+        <p class="mb-0"><strong>Probability of {{ second_disease_name|capfirst }}:</strong> {{ second_disease_prob|floatformat:2 }}%</p>
+    </div>
+    {% endif %}
 
-{% if analyses %}
-    <table style="width:100%; border-collapse: collapse;">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Picture</th>
-                <th>Result</th>
-                <th>Confidence</th>
-                <th>HeatMap</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for analysis in analyses %}
-            <tr>
-                <td>{{ analysis.created_at|date:"Y-m-d H:i" }}</td>
-
-                <td>
-                    <a href="{{ analysis.image.url }}" target="_blank">
-                        <img src="{{ analysis.image.url }}" width="100">
-                    </a>
-                </td>
-
-                <td>
-                    {{ analysis.predicted_class|capfirst }}
-                </td>
-
-                <td>
-                    {{ analysis.confidence|floatformat:2 }}
-                </td>
-
-                <td>
-                    {% if analysis.heatmap %}
-                        <a href="{{ analysis.heatmap.url }}" target="_blank">
-                            Heatmap
+    {% if analyses %}
+        <table class="table table-hover" style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Picture</th>
+                    <th>Result</th>
+                    <th>Confidence</th>
+                    <th>HeatMap</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for analysis in analyses %}
+                <tr>
+                    <td>{{ analysis.created_at|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        <a href="{{ analysis.image.url }}" target="_blank">
+                            <img src="{{ analysis.image.url }}" width="80" class="img-thumbnail">
                         </a>
-                    {% else %}
-                        —
-                    {% endif %}
-                </td>
-                <td>
-                    <button>Details</button>
-                </td>
-                <td>
-                    <button>Delete</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p>No history</p>
-{% endif %}
-
+                    </td>
+                    <td><span class="badge {% if analysis.predicted_class == 'error' %}bg-danger{% else %}bg-secondary{% endif %}">{{ analysis.predicted_class|capfirst }}</span></td>
+                    <td>{{ analysis.confidence|floatformat:2 }}</td>
+                    <td>
+                        {% if analysis.heatmap %}
+                            <a href="{{ analysis.heatmap.url }}" target="_blank">
+                                <img src="{{ analysis.heatmap.url }}" width="60" style="border-radius: 5px; border: 1px solid #212529;">
+                            </a>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td style="white-space: nowrap; vertical-align: middle;">
+                        <a href="{% url 'analysis_details' analysis.pk %}" 
+                            style="display: inline-block; background-color: #212529; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 14px; margin-right: 5px;">
+                            Details
+                        </a>
+    
+                        <a href="{% url 'delete_analysis' analysis.pk %}" 
+                            style="display: inline-block; background-color: #212529; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 14px;">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">No history found yet.</div>
+    {% endif %}
+</div>
 {% endblock %}
+
+
+
+
+

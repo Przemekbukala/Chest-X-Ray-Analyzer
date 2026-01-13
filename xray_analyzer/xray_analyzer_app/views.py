@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from .forms import CustomUserCreationForm
@@ -7,6 +7,7 @@ from .models import XrayAnalysis
 from .image_analyzer import ImageAnalizer
 from . import model_loader
 import logging
+import time
 logger = logging.getLogger(__name__)
 
 def home(request):
@@ -42,7 +43,6 @@ def register_view(request):
     return render(request, "registration/register.html", {"form": form})
 
 import os
-from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -56,7 +56,7 @@ def upload_xray(request):
 
         file = request.FILES['xray_file']
 
-        if not file.name.lower().endswith(('.jpg')):
+        if not file.name.lower().endswith(('.jpg', '.jpeg')):
             messages.error(request, 'Invalid file format, JPG required')
             return redirect('upload_xray')
 
@@ -71,28 +71,46 @@ def upload_xray(request):
             confidence=0.0,
             probabilities={},
         )
-        messages.success(request, f'File "{file.name}" successfully saved')
 
         try:
             analyzer = ImageAnalizer()
-            result = analyzer.analyze(analysis.image.path)
+            
+            start_time = time.time()
+            
+            results = analyzer.analyze(analysis.image.path)
 
-            analysis.predicted_class = result["predicted_class"]
-            analysis.confidence = result["confidence"]
-            analysis.probabilities = result["probabilities"]
-            analysis.save()
+            if results:
+                best_class = max(results, key=results.get)
+                
+                heatmap_filename = f"heatmap_{analysis.id}.jpg"
+                heatmap_relative_path = os.path.join('heatmaps', heatmap_filename)
+                heatmap_full_path = os.path.join(settings.MEDIA_ROOT, heatmap_relative_path)
+                
+                os.makedirs(os.path.dirname(heatmap_full_path), exist_ok=True)
+                
+                analyzer.compute_heatmap(heatmap_full_path)
+                
+                duration = time.time() - start_time
+                logger.info(f"Analysis completed in: {duration:.2f}s")
 
-            messages.info(request, f'Analysis result:\n Normal {result["probabilities"]["normal"]}%\n Pneumonia {result["probabilities"]['pneumonia']}%\n Tuberculosis {result["probabilities"]['tuberculosis']}%')
+                analysis.predicted_class = best_class
+                analysis.confidence = results[best_class]
+                analysis.probabilities = results
+                analysis.heatmap = heatmap_relative_path
+                analysis.save()
 
+                messages.success(request, f'Analysis successful ({duration:.2f}s)')
+                
+                msg = f"Result: {best_class.upper()} ({results[best_class]}%)"
+                messages.info(request, msg)
+            
         except Exception as e:
             analysis.predicted_class = "error"
             analysis.save()
+            logger.exception(f"X-ray analysis failed: {e}")
+            messages.error(request, "Analysis failed. Please check if model.pth exists.")
 
-            logger.exception("X-ray analysis failed")
-            messages.error(request, "Analysis failed. Please try again.")
-
-
-        return redirect('upload_xray')
+        return redirect('xray_history') 
 
     return render(request, 'upload_xray.html')
 
@@ -111,3 +129,60 @@ def xray_history(request):
             "analyses": analyses
         }
     )
+
+@login_required
+def delete_analysis(request, pk):
+    analysis = get_object_or_404(XrayAnalysis, pk=pk, user=request.user)
+    
+    if analysis.image:
+        analysis.image.delete(save=False)
+    
+    if hasattr(analysis, 'heatmap') and analysis.heatmap:
+        analysis.heatmap.delete(save=False)
+        
+    analysis.delete()
+    return redirect('xray_history')
+
+@login_required
+def analysis_details(request, pk):
+    analysis = get_object_or_404(XrayAnalysis, pk=pk, user=request.user)
+
+    probs = analysis.probabilities or {}
+    p_normal = float(probs.get("normal", 0.0) or 0.0)
+    p_pneumonia = float(probs.get("pneumonia", 0.0) or 0.0)
+    p_tuberculosis = float(probs.get("tuberculosis", 0.0) or 0.0)
+
+    survival_prob = round(p_normal, 2)
+
+    predicted = (analysis.predicted_class or "").lower()
+    if predicted == "pneumonia":
+        second_disease_name = "tuberculosis"
+        second_disease_prob = round(p_tuberculosis, 2)
+    elif predicted == "tuberculosis":
+        second_disease_name = "pneumonia"
+        second_disease_prob = round(p_pneumonia, 2)
+    else:
+        if p_pneumonia >= p_tuberculosis:
+            second_disease_name = "pneumonia"
+            second_disease_prob = round(p_pneumonia, 2)
+        else:
+            second_disease_name = "tuberculosis"
+            second_disease_prob = round(p_tuberculosis, 2)
+
+    analyses = (
+        XrayAnalysis.objects
+        .filter(user=request.user)
+        .order_by("-created_at")
+    )
+
+    context = {
+        "analyses": analyses,
+        "analysis": analysis,
+        "survival_prob": survival_prob,
+        "second_disease_name": second_disease_name,
+        "second_disease_prob": second_disease_prob,
+        "selected_id": analysis.pk,
+        "show_details": True,
+    }
+    return render(request, "xray_history.html", context)
+
