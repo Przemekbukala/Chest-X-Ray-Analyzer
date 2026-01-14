@@ -96,7 +96,7 @@ def upload_xray(request):
             logger.exception(f"X-ray analysis failed: {e}")
             messages.error(request, "Analysis failed. Please check if model.pth exists.")
 
-        return redirect('xray_history') 
+        return redirect('analysis_details', pk=analysis.pk) 
 
     return render(request, 'upload_xray.html')
 
@@ -155,19 +155,10 @@ def analysis_details(request, pk):
             second_disease_name = "tuberculosis"
             second_disease_prob = round(p_tuberculosis, 2)
 
-    analyses = (
-        XrayAnalysis.objects
-        .filter(user=request.user)
-        .order_by("-created_at")
-    )
-
     context = {
-        "analyses": analyses,
         "analysis": analysis,
         "survival_prob": survival_prob,
         "second_disease_name": second_disease_name,
         "second_disease_prob": second_disease_prob,
-        "selected_id": analysis.pk,
-        "show_details": True,
     }
-    return render(request, "xray_history.html", context)
+    return render(request, "analysis_details.html", context)

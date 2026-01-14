@@ -3,14 +3,6 @@
 {% block content %}
 <div class="container mt-4">
     <h2>History</h2>
-    {% if show_details %}
-    <div class="alert alert-secondary mt-3">
-        <h5 class="mb-2">Details for #{{ analysis.id }}</h5>
-        <p class="mb-1"><strong>Probability of survival:</strong> {{ survival_prob|floatformat:2 }}%</p>
-        <p class="mb-0"><strong>Probability of {{ second_disease_name|capfirst }}:</strong> {{ second_disease_prob|floatformat:2 }}%</p>
-    </div>
-    {% endif %}
-
     {% if analyses %}
         <table class="table table-hover" style="width:100%; border-collapse: collapse;">
             <thead>
@@ -29,7 +21,7 @@
                     <td>{{ analysis.created_at|date:"Y-m-d H:i" }}</td>
                     <td>
                         <a href="{{ analysis.image.url }}" target="_blank">
-                            <img src="{{ analysis.image.url }}" width="80" class="img-thumbnail">
+                            <img src="{{ analysis.image.url }}" width="60" height="60" style="border-radius: 5px; border: 1px solid #212529;">
                         </a>
                     </td>
                     <td><span class="badge {% if analysis.predicted_class == 'error' %}bg-danger{% else %}bg-secondary{% endif %}">{{ analysis.predicted_class|capfirst }}</span></td>
@@ -37,7 +29,7 @@
                     <td>
                         {% if analysis.heatmap %}
                             <a href="{{ analysis.heatmap.url }}" target="_blank">
-                                <img src="{{ analysis.heatmap.url }}" width="60" style="border-radius: 5px; border: 1px solid #212529;">
+                                <img src="{{ analysis.heatmap.url }}" width="60" height="60" style="border-radius: 5px; border: 1px solid #212529;">
                             </a>
                         {% else %}
                             <span class="text-muted">—</span>
@@ -63,8 +55,3 @@
     {% endif %}
 </div>
 {% endblock %}
-
-
-
-
-
