@@ -10,7 +10,6 @@ env/
 
 **/data/
 **/runs/
-*.pth
 
 **/media/
 **/temp_uploads/

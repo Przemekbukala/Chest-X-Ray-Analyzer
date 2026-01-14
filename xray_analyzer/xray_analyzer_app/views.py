@@ -7,7 +7,8 @@ from .models import XrayAnalysis
 from .image_analyzer import ImageAnalizer
 import logging
 import time
-from mashine_learning.helpers.model_utils import *
+from mashine_learning.helpers.model_utils import get_device
+
 logger = logging.getLogger(__name__)
 
 def home(request):
@@ -170,4 +171,3 @@ def analysis_details(request, pk):
         "show_details": True,
     }
     return render(request, "xray_history.html", context)
-

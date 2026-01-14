@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 from django.conf import settings
 
-from mashine_learning.helpers.model_utils import *
+from mashine_learning.helpers.model_utils import get_device, load_model
 from mashine_learning.config import  *
 logger = logging.getLogger(__name__)
 
@@ -166,9 +166,6 @@ class ImageAnalizer():
         if self.activations is None or self.gradients is None:
             raise RuntimeError("Grad-CAM failed: no activations/gradients captured.")
 
-
-
-
     def compute_heatmap(self, output_path: str):
         if self.img_tensor is None:
             raise ValueError("img_tensor is None. Call analyze(image_path) first.")
@@ -228,9 +225,7 @@ class ImageAnalizer():
                 cam_lung = cam_lung / mx
             cam_lung = np.clip(cam_lung, 0, 1)
         cam_lung = np.where(cam_lung < 0.2, 0.0, cam_lung)
-
-
-
+        
         heatmap_color = cv2.applyColorMap((cam_lung * 255).astype(np.uint8), cv2.COLORMAP_JET)
 
         alpha = 0.45
@@ -248,23 +243,4 @@ class ImageAnalizer():
         result = np.clip(result, 0, 255).astype(np.uint8)
         cv2.imwrite(output_path, result)
         return output_path
-
-
-
-
-if __name__ == "__main__":
-    # print(MEDIA_DIR)
-    # logging.basicConfig(level=logging.INFO)
-    # test_img = f"{MEDIA_DIR}/"+"xrays/2026/01/06/tuberculosis-900.jpg"
-    # analyzer = None
-    # if os.path.exists(test_img):
-    #     print(f"Testing on: {test_img}")
-    #     try:
-    #         analyzer = ImageAnalizer()
-    #         print(analyzer.analyze(test_img))
-    #     except Exception as e:
-    #         print(f"Error: {e}")
-    # else:
-    #     logging.warning(f"Test image not found at: {test_img}")
-    # analyzer.compute_heatmap()
-    pass
+    
