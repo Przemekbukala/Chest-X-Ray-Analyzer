@@ -10,11 +10,10 @@ import matplotlib.pyplot as plt
 from torchvision.transforms.functional import to_pil_image, resize
 import cv2
 import numpy as np
+from django.conf import settings
 
 from mashine_learning.helpers.model_utils import *
 from mashine_learning.config import  *
-from . import model_loader
-#import model_loader
 logger = logging.getLogger(__name__)
 
 class ImageAnalizer():
@@ -25,9 +24,16 @@ class ImageAnalizer():
     output is a PyTorch tensor  that represents an image in a format understood by a neural network model.
     Used for example in views.py/upload_xray
     """
-    def __init__(self, model_filename=None):
+    def __init__(self, model_filename:str, device:torch.device):
         self.device = get_device()
-        self.model = model_loader.load_model()
+        
+        if not os.path.isabs(model_filename):
+            app_dir = os.path.dirname(os.path.abspath(__file__))
+            model_path = os.path.join(app_dir, model_filename)
+        else:
+            model_path = model_filename
+            
+        self.model = load_model(model_path, device)
         self.output = None
         self.transform = transforms.Compose([transforms.Resize((256, 256)), transforms.ToTensor()])
         self.activations = None

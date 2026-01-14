@@ -5,9 +5,9 @@ from django.contrib.auth.forms import UserCreationForm
 from .forms import CustomUserCreationForm
 from .models import XrayAnalysis
 from .image_analyzer import ImageAnalizer
-from . import model_loader
 import logging
 import time
+from mashine_learning.helpers.model_utils import *
 logger = logging.getLogger(__name__)
 
 def home(request):
@@ -15,21 +15,6 @@ def home(request):
 
 def about(request):
     return render(request, 'about.html')
-
-# def login_view(request):
-#     if request.method == "POST":
-#         username = request.POST.get("username")
-#         password = request.POST.get("password")
-#
-#         user = authenticate(request, username=username, password=password)
-#
-#         if user is not None:
-#             login(request, user)
-#             return redirect('home')
-#         else:
-#             return HttpResponse("Invalid username or password")
-#
-#     return render(request, 'registration/login.html')
 
 def register_view(request):
     if request.method == "POST":
@@ -73,7 +58,7 @@ def upload_xray(request):
         )
 
         try:
-            analyzer = ImageAnalizer()
+            analyzer = ImageAnalizer('trained_models/10_epoch_model.pth', get_device())
             
             start_time = time.time()
             

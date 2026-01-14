@@ -7,8 +7,6 @@ from torch.nn import Module
 from mashine_learning.models.simple_cnn import SimpleCNN
 from mashine_learning.config import MODELS_DIR
 
-
-
 def get_device() -> torch.device:
     if torch.backends.mps.is_available():
         device = torch.device("mps")

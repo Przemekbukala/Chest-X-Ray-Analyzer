@@ -5,8 +5,6 @@ from torch.utils.data import DataLoader
 from mashine_learning.dataset.chest_xray_dataset import ChestXrayDataset
 from mashine_learning.dataset.init_dataset import download_dataset
 
-
-
 def get_dataloaders(
         batch_size: int = 16,
         num_workers: int = 0
